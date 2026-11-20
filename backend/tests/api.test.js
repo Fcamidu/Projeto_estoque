@@ -4,7 +4,7 @@ const Produto = require('../models/Produto');
 
 // ---------- testes unitários (classe Produto) ----------
 describe('Produto (unitário)', () => {
-  const base = { id: 1, nome: 'Caneta', categoria: 'Papelaria', preco: 2.5, quantidade: 10, fornecedor: 'Bic' };
+  const base = { id: 1, nome: 'Caneta', categoria: 'Outros', preco: 2.5, quantidade: 10, fornecedor: 'Bic' };
 
   test('calcula valor total do estoque', () => {
     expect(new Produto(base).valorTotalEstoque()).toBe(25);
@@ -13,6 +13,20 @@ describe('Produto (unitário)', () => {
   test('detecta estoque baixo', () => {
     expect(new Produto({ ...base, quantidade: 2 }).estoqueBaixo()).toBe(true);
     expect(new Produto(base).estoqueBaixo()).toBe(false);
+  });
+
+  test('rejeita categoria fora da lista', () => {
+    expect(() => new Produto({ ...base, categoria: 'Papelaria' })).toThrow();
+  });
+
+  test('rejeita preço e quantidade acima do limite', () => {
+    expect(() => new Produto({ ...base, preco: 100000 })).toThrow();
+    expect(() => new Produto({ ...base, quantidade: 100000 })).toThrow();
+    expect(new Produto({ ...base, preco: 99999.99, quantidade: 99999 }).preco).toBe(99999.99);
+  });
+
+  test('rejeita nome muito longo', () => {
+    expect(() => new Produto({ ...base, nome: 'x'.repeat(61) })).toThrow();
   });
 
   test('rejeita preço negativo', () => {
@@ -64,6 +78,18 @@ describe('API (integração)', () => {
 
     const depois = await request(app).get(`/produtos/${id}`).set(auth);
     expect(depois.status).toBe(404);
+  });
+
+  test('POST /produtos com categoria inválida devolve 400', async () => {
+    const res = await request(app).post('/produtos').set({ Authorization: `Bearer ${token}` })
+      .send({ nome: 'Caneta', categoria: 'Papelaria', preco: 2, quantidade: 1, fornecedor: 'Bic' });
+    expect(res.status).toBe(400);
+  });
+
+  test('POST /produtos com preço acima do limite devolve 400', async () => {
+    const res = await request(app).post('/produtos').set({ Authorization: `Bearer ${token}` })
+      .send({ nome: 'Mouse', categoria: 'Periféricos', preco: 12344312412312312, quantidade: 1, fornecedor: 'Paulinho' });
+    expect(res.status).toBe(400);
   });
 
   test('após logout o token deixa de funcionar', async () => {

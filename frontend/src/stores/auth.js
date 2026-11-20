@@ -9,7 +9,7 @@ export const useAuthStore = defineStore('auth', () => {
   const usuario = ref(localStorage.getItem('usuario') || '')
 
   async function login(user, senha) {
-    const { data } = await api.post('/login', { usuario: user, senha })
+    const { data } = await api.post('/login', { usuario: user.trim(), senha }) // trim: ignora espaços sem querer no usuário
     token.value = data.token
     usuario.value = data.usuario
     localStorage.setItem('token', data.token)

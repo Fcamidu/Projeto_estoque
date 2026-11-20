@@ -10,6 +10,7 @@ vi.mock('../src/services/api', () => ({
   },
 }))
 
+import api from '../src/services/api'
 import { useAuthStore } from '../src/stores/auth'
 
 describe('store de autenticação (unitário)', () => {
@@ -23,6 +24,12 @@ describe('store de autenticação (unitário)', () => {
     await auth.login('admin', '123456')
     expect(auth.token).toBe('abc123')
     expect(localStorage.getItem('token')).toBe('abc123')
+  })
+
+  test('login ignora espaços nas pontas do usuário', async () => {
+    const auth = useAuthStore()
+    await auth.login('  admin ', '123456')
+    expect(api.post).toHaveBeenCalledWith('/login', { usuario: 'admin', senha: '123456' })
   })
 
   test('logout limpa o token', async () => {
