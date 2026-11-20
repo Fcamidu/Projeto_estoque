@@ -37,8 +37,8 @@ Aplicação web de **gestão de estoque** (cadastro de Produtos) desenvolvida pa
 Clone o repositório:
 
 ```bash
-git clone <URL-DO-REPOSITORIO>
-cd <NOME-DA-PASTA>
+git clone https://github.com/Fcamidu/Projeto_estoque.git
+cd Projeto_estoque
 ```
 
 São necessários **dois terminais**, um para a API e outro para o frontend.
